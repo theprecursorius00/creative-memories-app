@@ -4,6 +4,15 @@
  * Manages UI interactions and processing pipeline
  */
 
+// Global app state initialization
+window.AppState = {
+    selectedFiles: [],
+    processedImages: [],
+    isProcessing: false,
+    cancelled: false,
+    currentSettings: {}
+};
+
 class ApplicationController {
     constructor() {
         this.isInitialized = false;
