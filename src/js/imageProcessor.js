@@ -136,32 +136,45 @@ class ImageProcessingEngine {
      * Setup canvas with optimal dimensions
      * @param {HTMLImageElement} img - Source image
      */
-    setupCanvas(img) {
-        // Calculate optimal canvas size (max 1200px width for performance)
-        const maxWidth = 1200;
-        const maxHeight = 1200;
+/**
+ * Setup canvas with optimal dimensions
+ * @param {HTMLImageElement} img - Source image
+ */
+    
+setupCanvas(img) {
+    // Calculate optimal canvas size (max 1200px width for performance)
+    const maxWidth = 1200;
+    const maxHeight = 1200;
+    
+    let { width, height } = img;
+    
+    if (width > maxWidth || height > maxHeight) {
+        const aspectRatio = width / height;
         
-        let { width, height } = img;
-        
-        if (width > maxWidth || height > maxHeight) {
-            const aspectRatio = width / height;
-            
-            if (width > height) {
-                width = maxWidth;
-                height = width / aspectRatio;
-            } else {
-                height = maxHeight;
-                width = height * aspectRatio;
-            }
+        if (width > height) {
+            width = maxWidth;
+            height = width / aspectRatio;
+        } else {
+            height = maxHeight;
+            width = height * aspectRatio;
         }
-        
-        this.canvas.width = Math.round(width);
-        this.canvas.height = Math.round(height);
-        
-        // Enable image smoothing for better quality
-        this.context.imageSmoothingEnabled = true;
-        this.context.imageSmoothingQuality = 'high';
     }
+    
+    // HIGH-DPI SCALING HOZZÁADÁSA
+    const dpr = window.devicePixelRatio || 1;
+    
+    this.canvas.width = Math.round(width * dpr);
+    this.canvas.height = Math.round(height * dpr);
+    
+    // CSS méret beállítása a felhasználói felülethez
+    this.canvas.style.width = `${Math.round(width)}px`;
+    this.canvas.style.height = `${Math.round(height)}px`;
+    
+    // Context beállítások minőségi javításhoz
+    this.context.scale(dpr, dpr);
+    this.context.imageSmoothingEnabled = false; // Éles szélekhez kifestőkhöz
+    this.context.imageSmoothingQuality = 'high';
+}
 
     /**
      * Apply the complete image processing pipeline
