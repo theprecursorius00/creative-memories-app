@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Coloring Converter</title>
+    <link rel="stylesheet" href="src/css/main.css">
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <meta name="description" content="Educational photo to coloring page converter using client-side image processing">
+    <meta name="keywords" content="image processing, coloring pages, education, SVG, PDF, photography">
+    <meta name="author" content="Photo Coloring Converter Project">
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="main-header">
+        <div class="container">
+            <h1 class="app-title">🎨 Photo Coloring Converter</h1>
+            <p class="app-subtitle">Transform your photos into printable coloring pages</p>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="main-content">
+        <div class="container">
+            
+            <!-- Project Information -->
+            <section class="info-section">
+                <h2>About This Application</h2>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <span class="feature-icon">🔬</span>
+                        <h3>Educational Demo</h3>
+                        <p>Demonstrates advanced image processing techniques using JavaScript and Canvas API</p>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🛡️</span>
+                        <h3>Privacy First</h3>
+                        <p>All processing happens locally in your browser - no files are uploaded to servers</p>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">⚙️</span>
+                        <h3>Customizable</h3>
+                        <p>Adjust complexity levels, styles, and themes to create perfect coloring pages</p>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">📱</span>
+                        <h3>Universal</h3>
+                        <p>Works on desktop and mobile devices with modern web browsers</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- File Upload Section -->
+            <section class="upload-section">
+                <div class="upload-container">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-content">
+                            <span class="upload-icon">📁</span>
+                            <h3>Select Your Photos</h3>
+                            <p>Choose photos with clear subjects and good contrast for best results</p>
+                            <div class="upload-details">
+                                <small>Supports: JPG, PNG, WebP • Max 10 files • Drag & drop enabled</small>
+                            </div>
+                            <input type="file" id="fileInput" class="file-input" multiple accept="image/*">
+                            <button class="upload-btn" onclick="selectFiles()">Choose Files</button>
+                        </div>
+                    </div>
+                    <div class="file-status" id="fileStatus"></div>
+                </div>
+            </section>
+
+            <!-- Processing Settings -->
+            <section class="settings-section">
+                <h2>Processing Settings</h2>
+                <div class="settings-grid">
+                    
+                    <div class="setting-group">
+                        <label for="complexityLevel">Detail Complexity</label>
+                        <select id="complexityLevel" class="setting-input">
+                            <option value="simple">Simple lines (ages 4-6)</option>
+                            <option value="moderate" selected>Moderate detail (ages 7-10)</option>
+                            <option value="complex">Fine details (ages 11+)</option>
+                        </select>
+                        <small class="setting-help">Controls the amount of detail in the final coloring page</small>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="outputStyle">Artistic Style</label>
+                        <select id="outputStyle" class="setting-input">
+                            <option value="outline" selected>Clean outlines</option>
+                            <option value="sketch">Sketch style</option>
+                            <option value="artistic">Artistic interpretation</option>
+                        </select>
+                        <small class="setting-help">Determines the visual style of the line art</small>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="pageTheme">Page Elements</label>
+                        <select id="pageTheme" class="setting-input">
+                            <option value="minimal" selected>Minimal design</option>
+                            <option value="decorative">Decorative borders</option>
+                            <option value="educational">Educational labels</option>
+                        </select>
+                        <small class="setting-help">Additional elements to include on the page</small>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="projectTitle">Project Title</label>
+                        <input type="text" id="projectTitle" class="setting-input" 
+                               placeholder="My Coloring Project" value="Creative Coloring Pages">
+                        <small class="setting-help">Title to appear on generated pages</small>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="pageSize">Output Size</label>
+                        <select id="pageSize" class="setting-input">
+                            <option value="a4" selected>A4 (210×297mm)</option>
+                            <option value="letter">Letter (8.5×11in)</option>
+                            <option value="a3">A3 (297×420mm)</option>
+                        </select>
+                        <small class="setting-help">Paper size for printing</small>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="lineWeight">Line Thickness</label>
+                        <select id="lineWeight" class="setting-input">
+                            <option value="thin">Thin lines</option>
+                            <option value="medium" selected>Medium lines</option>
+                            <option value="thick">Thick lines</option>
+                        </select>
+                        <small class="setting-help">Thickness of the coloring outlines</small>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Preview Section -->
+            <section class="preview-section" id="previewSection" style="display: none;">
+                <h2>Photo Preview</h2>
+                <div class="preview-grid" id="previewGrid"></div>
+            </section>
+
+            <!-- Process Button -->
+            <section class="process-section">
+                <button class="process-btn" id="processBtn" onclick="startImageProcessing()">
+                    <span class="btn-icon">🚀</span>
+                    <span class="btn-text">Convert to Coloring Pages</span>
+                </button>
+                
+                <!-- Progress Indicator -->
+                <div class="progress-container" id="progressContainer" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                        <div class="progress-text" id="progressText">Starting conversion...</div>
+                    </div>
+                    <div class="progress-details" id="progressDetails"></div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <h2>Your Coloring Pages</h2>
+                <div class="results-grid" id="resultsGrid"></div>
+                
+                <!-- Export Options -->
+                <div class="export-section">
+                    <h3>Download Options</h3>
+                    <div class="export-buttons">
+                        <button class="export-btn pdf-export" onclick="exportToPDF()">
+                            <span class="btn-icon">📄</span>
+                            <span class="btn-text">Download PDF</span>
+                            <small>Print-ready document</small>
+                        </button>
+                        <button class="export-btn svg-export" onclick="exportToSVG()">
+                            <span class="btn-icon">🎨</span>
+                            <span class="btn-text">Download SVG</span>
+                            <small>Editable vector files</small>
+                        </button>
+                        <button class="export-btn zip-export" onclick="exportAll()">
+                            <span class="btn-icon">📦</span>
+                            <span class="btn-text">Download All</span>
+                            <small>Complete package</small>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Technology Stack</h4>
+                    <ul>
+                        <li>HTML5 Canvas API</li>
+                        <li>JavaScript ES6+</li>
+                        <li>SVG Path Generation</li>
+                        <li>Client-side Processing</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Features</h4>
+                    <ul>
+                        <li>Edge Detection</li>
+                        <li>Vector Conversion</li>
+                        <li>PDF Generation</li>
+                        <li>Responsive Design</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Educational Project</h4>
+                    <p>&copy; 2024 Photo Coloring Converter<br>
+                    Open Source Technology Demonstration</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Application Scripts -->
+    <script src="src/js/imageProcessor.js"></script>
+    <script src="src/js/svgGenerator.js"></script>
+    <script src="src/js/pdfExporter.js"></script>
+    <script src="src/js/main.js"></script>
+
+    <!-- Application Initialization -->
+    <script>
+        // Initialize application when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Photo Coloring Converter initialized');
+            initializeApplication();
+        });
+
+        // Global application state
+        window.AppState = {
+            selectedFiles: [],
+            processedImages: [],
+            currentSettings: {},
+            isProcessing: false
+        };
+
+        // Main application initialization
+        function initializeApplication() {
+            setupFileHandling();
+            setupDragAndDrop();
+            setupSettingsHandlers();
+            loadDefaultSettings();
+        }
+
+        // File handling setup
+        function setupFileHandling() {
+            const fileInput = document.getElementById('fileInput');
+            fileInput.addEventListener('change', handleFileSelection);
+        }
+
+        // Drag and drop setup
+        function setupDragAndDrop() {
+            const uploadArea = document.getElementById('uploadArea');
+            
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('drag-over');
+            });
+
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('drag-over');
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('drag-over');
+                
+                const files = Array.from(e.dataTransfer.files);
+                const imageFiles = files.filter(file => file.type.startsWith('image/'));
+                
+                if (imageFiles.length > 0) {
+                    handleDroppedFiles(imageFiles);
+                }
+            });
+        }
+
+        // Settings handlers setup
+        function setupSettingsHandlers() {
+            const settingInputs = document.querySelectorAll('.setting-input');
+            settingInputs.forEach(input => {
+                input.addEventListener('change', updateSettings);
+            });
+        }
+
+        // Load default settings
+        function loadDefaultSettings() {
+            window.AppState.currentSettings = {
+                complexityLevel: 'moderate',
+                outputStyle: 'outline',
+                pageTheme: 'minimal',
+                projectTitle: 'Creative Coloring Pages',
+                pageSize: 'a4',
+                lineWeight: 'medium'
+            };
+        }
+
+        // File selection handler
+        function selectFiles() {
+            document.getElementById('fileInput').click();
+        }
+
+        // Handle file selection
+        function handleFileSelection(event) {
+            const files = Array.from(event.target.files);
+            processSelectedFiles(files);
+        }
+
+        // Handle dropped files
+        function handleDroppedFiles(files) {
+            processSelectedFiles(files);
+        }
+
+        // Process selected files
+        function processSelectedFiles(files) {
+            if (files.length > 10) {
+                alert('Please select maximum 10 files for optimal performance');
+                return;
+            }
+
+            window.AppState.selectedFiles = files;
+            
+            const fileStatus = document.getElementById('fileStatus');
+            fileStatus.innerHTML = `<p class="success-message">✅ ${files.length} photos selected</p>`;
+            
+            displayPreview(files);
+        }
+
+        // Display file preview
+        function displayPreview(files) {
+            const previewSection = document.getElementById('previewSection');
+            const previewGrid = document.getElementById('previewGrid');
+            
+            previewSection.style.display = 'block';
+            previewGrid.innerHTML = '';
+            
+            files.slice(0, 6).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewCard = document.createElement('div');
+                    previewCard.className = 'preview-card';
+                    previewCard.innerHTML = `
+                        <h4>Photo ${index + 1}</h4>
+                        <img src="${e.target.result}" class="preview-image" alt="Preview ${index + 1}">
+                        <p class="file-name">${file.name}</p>
+                    `;
+                    previewGrid.appendChild(previewCard);
+                };
+                reader.readAsDataURL(file);
+            });
+
+            if (files.length > 6) {
+                const moreCard = document.createElement('div');
+                moreCard.className = 'preview-card more-files';
+                moreCard.innerHTML = `
+                    <h4>+${files.length - 6} more</h4>
+                    <p>Additional files ready for processing</p>
+                `;
+                previewGrid.appendChild(moreCard);
+            }
+        }
+
+        // Update settings
+        function updateSettings() {
+            const settings = {};
+            document.querySelectorAll('.setting-input').forEach(input => {
+                settings[input.id] = input.value;
+            });
+            window.AppState.currentSettings = settings;
+        }
+
+        // Start image processing
+        function startImageProcessing() {
+            if (window.AppState.selectedFiles.length === 0) {
+                alert('Please select some photos first!');
+                return;
+            }
+            
+            if (window.ImageProcessor) {
+                window.ImageProcessor.processImages(window.AppState.selectedFiles);
+            } else {
+                console.error('ImageProcessor module not loaded');
+                alert('Image processor not available. Please refresh the page.');
+            }
+        }
+
+        // Export functions
+        function exportToPDF() {
+            if (window.PDFExporter) {
+                window.PDFExporter.generatePDF(window.AppState.processedImages);
+            }
+        }
+
+        function exportToSVG() {
+            if (window.SVGGenerator) {
+                window.SVGGenerator.exportSVGFiles(window.AppState.processedImages);
+            }
+        }
+
+        function exportAll() {
+            if (window.PDFExporter && window.SVGGenerator) {
+                window.PDFExporter.exportCompletePackage(window.AppState.processedImages);
+            }
+        }
+    </script>
+</body>
+</html>
